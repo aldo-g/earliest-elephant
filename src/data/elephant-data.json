@@ -10,36 +10,33 @@
     ],
     "imageUrl": "/src/assets/jumbo.png"
   },
-{
+  {
     "countryCode": "AFRICA_CONTINENT",
     "countryName": "Africa",
-    "elephantName": "Jumbo",
-    "arrivalYear": 1885,
+    "elephantName": "African Elephant",
+    "arrivalYear": 0,
     "story": [
-      "Jumbo, one of the most famous elephants in history, was sold to P.T. Barnum and toured North America.",
-      "He tragically died in a railway accident in St. Thomas, Ontario, which cemented his legacy in the region."
+      "African elephants are native to the continent of Africa and are the largest land animals on Earth."
     ],
-    "imageUrl": "src/assets/africa.png"
+    "imageUrl": "/src/assets/africa.png"
   },
-{
+  {
     "countryCode": "ASIA_ELEPHANT_REGION",
     "countryName": "Asia",
-    "elephantName": "Jumbo",
-    "arrivalYear": 1885,
+    "elephantName": "Asian Elephant",
+    "arrivalYear": 0,
     "story": [
-      "Jumbo, one of the most famous elephants in history, was sold to P.T. Barnum and toured North America.",
-      "He tragically died in a railway accident in St. Thomas, Ontario, which cemented his legacy in the region."
+      "The Asian elephant is the largest living land animal in Asia and is native to several countries on the continent."
     ],
     "imageUrl": "/src/assets/asia.png"
   },
-    {
+  {
     "countryCode": "036",
-    "countryName": "Austrailia",
-    "elephantName": "Jumbo",
-    "arrivalYear": 1885,
+    "countryName": "Australia",
+    "elephantName": "First Elephant",
+    "arrivalYear": 1851,
     "story": [
-      "Jumbo, one of the most famous elephants in history, was sold to P.T. Barnum and toured North America.",
-      "He tragically died in a railway accident in St. Thomas, Ontario, which cemented his legacy in the region."
+      "The first elephant to arrive in Australia was brought over for a menagerie in Hobart, Tasmania in 1851."
     ],
     "imageUrl": "/src/assets/australia.png"
   }
