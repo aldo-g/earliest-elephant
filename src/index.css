@@ -31,11 +31,11 @@ h1 {
 }
 
 /* The map itself is positioned to fill its entire parent container */
-.country {
+.country-group { /* UPDATED from .country */
   transition: opacity 0.2s ease-in-out;
 }
 
-.country:hover {
+.country-group:hover { /* UPDATED from .country:hover */
   opacity: 0.7;
   cursor: pointer;
 }

@@ -1,6 +1,6 @@
 [
   {
-    "countryCode": "CAN",
+    "countryCode": "124",
     "countryName": "Canada",
     "elephantName": "Jumbo",
     "arrivalYear": 1885,
@@ -9,5 +9,38 @@
       "He tragically died in a railway accident in St. Thomas, Ontario, which cemented his legacy in the region."
     ],
     "imageUrl": "/src/assets/jumbo.png"
+  },
+{
+    "countryCode": "AFRICA_CONTINENT",
+    "countryName": "Africa",
+    "elephantName": "Jumbo",
+    "arrivalYear": 1885,
+    "story": [
+      "Jumbo, one of the most famous elephants in history, was sold to P.T. Barnum and toured North America.",
+      "He tragically died in a railway accident in St. Thomas, Ontario, which cemented his legacy in the region."
+    ],
+    "imageUrl": "src/assets/africa.png"
+  },
+{
+    "countryCode": "ASIA_ELEPHANT_REGION",
+    "countryName": "Asia",
+    "elephantName": "Jumbo",
+    "arrivalYear": 1885,
+    "story": [
+      "Jumbo, one of the most famous elephants in history, was sold to P.T. Barnum and toured North America.",
+      "He tragically died in a railway accident in St. Thomas, Ontario, which cemented his legacy in the region."
+    ],
+    "imageUrl": "/src/assets/asia.png"
+  },
+    {
+    "countryCode": "036",
+    "countryName": "Austrailia",
+    "elephantName": "Jumbo",
+    "arrivalYear": 1885,
+    "story": [
+      "Jumbo, one of the most famous elephants in history, was sold to P.T. Barnum and toured North America.",
+      "He tragically died in a railway accident in St. Thomas, Ontario, which cemented his legacy in the region."
+    ],
+    "imageUrl": "/src/assets/australia.png"
   }
 ]

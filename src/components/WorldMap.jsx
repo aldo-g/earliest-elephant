@@ -2,37 +2,58 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import * as d3 from 'd3';
 import * as topojson from 'topojson-client';
 
+// ========================================================================
+// TWEAKS CONFIGURATION
+// ========================================================================
+const countryTweaks = {
+  "124": { // Canada
+    scaleFactor: 1.8,
+    yOffsetPercent: 0.55,
+  },
+  "036": { // Austrailia
+    scaleFactor: 1,
+    yOffsetPercent: 0,
+  }
+};
+
+const regionData = {
+  "AFRICA_CONTINENT": {
+    countryIds: [ "999", "012", "024", "072", "108", "120", "140", "148", "178", "180", "204", "226", "231", "232", "262", "266", "270", "288", "324", "384", "404", "426", "430", "434", "450", "454", "466", "478", "504", "508", "516", "562", "566", "624", "646", "686", "694", "706", "710", "716", "728", "729", "732", "748", "768", "788", "800", "818", "834", "854", "894" ],
+    tweaks: {
+      scaleFactor: 1,
+      yOffsetPercent: 0,
+    }
+  },
+  // NEW: Configuration for the Asian elephant region
+  "ASIA_ELEPHANT_REGION": {
+    countryIds: [ "050", "064", "116", "156", "356", "360", "418", "458", "104", "524", "144", "764", "704" ],
+    tweaks: {
+        scaleFactor: 1.0,
+        yOffsetPercent: 0,
+    }
+  }
+}
+
 const WorldMap = ({ onCountryClick }) => {
   const svgRef = useRef(null);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
   const [countries, setCountries] = useState(null);
   const [elephantData, setElephantData] = useState(null);
-
-  // NEW: State to hold the current zoom/pan transformation
   const [transform, setTransform] = useState(d3.zoomIdentity);
 
-  // This function will be called by D3 when a zoom/pan event happens
   const handleZoom = useCallback((event) => {
     setTransform(event.transform);
   }, []);
 
-  // Effect to set up the D3 zoom behavior
   useEffect(() => {
     if (!dimensions.width || !svgRef.current) return;
-
-    // Create the zoom behavior
     const zoomBehavior = d3.zoom()
-      .scaleExtent([1, 8]) // Min zoom is 1x (original size), max is 8x
-      .translateExtent([[0, 0], [dimensions.width, dimensions.height]]) // Constrain panning to the map's boundaries
-      .on('zoom', handleZoom); // Attach our handler
-
-    // Apply the zoom behavior to the SVG element
+      .scaleExtent([1, 8])
+      .translateExtent([[0, 0], [dimensions.width, dimensions.height]])
+      .on('zoom', handleZoom);
     d3.select(svgRef.current).call(zoomBehavior);
-
   }, [dimensions, handleZoom]);
 
-
-  // Effect to measure the container size (no changes here)
   useEffect(() => {
     const measure = () => {
       if (svgRef.current) {
@@ -47,7 +68,6 @@ const WorldMap = ({ onCountryClick }) => {
     return () => window.removeEventListener('resize', measure);
   }, []);
 
-  // Effect to fetch data (no changes here)
   useEffect(() => {
     Promise.all([
       d3.json('/src/data/world-countries.json'),
@@ -60,7 +80,6 @@ const WorldMap = ({ onCountryClick }) => {
     });
   }, []);
 
-
   if (!countries || !elephantData || !dimensions.width) {
     return <div ref={svgRef} style={{ width: '100%', height: '100%' }}>Loading map...</div>;
   }
@@ -71,31 +90,131 @@ const WorldMap = ({ onCountryClick }) => {
   
   const pathGenerator = d3.geoPath().projection(projection);
 
+  // Create a map of all countries that belong to a region for easy lookup
+  const regionCountryMap = new Map();
+  Object.keys(regionData).forEach(regionKey => {
+    regionData[regionKey].countryIds.forEach(countryId => {
+      regionCountryMap.set(countryId, regionKey);
+    });
+  });
+
   return (
     <svg ref={svgRef} width={dimensions.width} height={dimensions.height}>
       <defs>
-        {Array.from(elephantData.values()).map(d => (
-          <pattern key={d.countryCode} id={`img-${d.countryCode}`} patternUnits="objectBoundingBox" width="1" height="1">
-            <image href={d.imageUrl} x="0" y="0" width={dimensions.width} height={dimensions.height} preserveAspectRatio="xMidYMid slice" />
-          </pattern>
+        {/* Clip path for single countries (like Canada) */}
+        {countries.map(c => {
+          if (elephantData.has(c.id) && !regionCountryMap.has(c.id)) {
+            return (
+              <clipPath key={`clip-${c.id}`} id={`clip-${c.id}`}>
+                <path d={pathGenerator(c)} />
+              </clipPath>
+            );
+          }
+          return null;
+        })}
+        {/* Clip paths for each defined region (Africa, Asia) */}
+        {Object.keys(regionData).map(regionKey => (
+          <clipPath key={`clip-${regionKey}`} id={`clip-${regionKey}`}>
+            {countries
+              .filter(c => regionData[regionKey].countryIds.includes(c.id))
+              .map(c => (
+                <path key={`clip-path-${c.id}`} d={pathGenerator(c)} />
+              ))
+            }
+          </clipPath>
         ))}
       </defs>
-      {/* NEW: The <g> tag now has a transform attribute driven by our state */}
+
       <g transform={transform.toString()}>
+        {/* Layer 1: Base map with default blue */}
+        {countries.map(c => (
+          <path
+            key={`base-${c.id}`}
+            d={pathGenerator(c)}
+            fill={'#a9d3f5'}
+            stroke={transform.k > 1.5 ? "#fff" : "#aaa"}
+            strokeWidth={0.5 / transform.k}
+          />
+        ))}
+
+        {/* Layer 2: Clipped images for each region */}
+        {Object.keys(regionData).map(regionKey => {
+          const regionInfo = regionData[regionKey];
+          const regionElephantData = elephantData.get(regionKey);
+          if (!regionElephantData) return null;
+
+          const regionCountries = countries.filter(c => regionInfo.countryIds.includes(c.id));
+          const regionGeometry = { type: "GeometryCollection", geometries: regionCountries.map(c => c.geometry) };
+          
+          const bounds = pathGenerator.bounds(regionGeometry);
+          const width = bounds[1][0] - bounds[0][0];
+          const height = bounds[1][1] - bounds[0][1];
+          
+          const { scaleFactor, yOffsetPercent } = regionInfo.tweaks;
+          const imgWidth = width * scaleFactor;
+          const imgHeight = height * scaleFactor;
+          const imgX = bounds[0][0] - (imgWidth - width) / 2;
+          let imgY = bounds[0][1] - (imgHeight - height) / 2;
+          imgY += height * yOffsetPercent;
+
+          return (
+            <image
+              key={`img-${regionKey}`}
+              href={regionElephantData.imageUrl}
+              clipPath={`url(#clip-${regionKey})`}
+              x={imgX} y={imgY} width={imgWidth} height={imgHeight}
+              preserveAspectRatio="xMidYMid slice"
+            />
+          );
+        })}
+
+        {/* Layer 3: Clipped images for individual countries */}
         {countries.map(c => {
           const countryElephantData = elephantData.get(c.id);
-          // UPDATED: Using a nicer blue color for the fallback
-          const fill = countryElephantData ? `url(#img-${c.id})` : '#a9d3f5'; 
+          if (!countryElephantData || regionCountryMap.has(c.id)) return null;
+          
+          const tweaks = countryTweaks[c.id] || {};
+          const { scaleFactor = 2.0, yOffsetPercent = 0 } = tweaks;
+          
+          const bounds = pathGenerator.bounds(c);
+          const width = bounds[1][0] - bounds[0][0];
+          const height = bounds[1][1] - bounds[0][1];
+          const imgWidth = width * scaleFactor;
+          const imgHeight = height * scaleFactor;
+          const imgX = bounds[0][0] - (imgWidth - width) / 2;
+          let imgY = bounds[0][1] - (imgHeight - height) / 2;
+          imgY += height * yOffsetPercent;
+          
+          return (
+            <image
+              key={`img-${c.id}`}
+              href={countryElephantData.imageUrl}
+              clipPath={`url(#clip-${c.id})`}
+              x={imgX} y={imgY} width={imgWidth} height={imgHeight}
+              preserveAspectRatio="xMidYMid slice"
+            />
+          );
+        })}
+
+        {/* Layer 4: Interactive layer for hover/clicks */}
+        {countries.map(c => {
+          const regionKey = regionCountryMap.get(c.id);
+          const countryElephantData = elephantData.get(c.id);
+          
+          let clickData = null;
+          if (regionKey) {
+            clickData = elephantData.get(regionKey);
+          } else if (countryElephantData) {
+            clickData = countryElephantData;
+          }
 
           return (
             <path
-              key={c.id}
+              key={`interactive-${c.id}`}
               d={pathGenerator(c)}
-              className="country"
-              fill={fill}
-              stroke={transform.k > 1.5 ? "#fff" : "#aaa"} // Thinner strokes when zoomed out
-              strokeWidth={0.5 / transform.k} // Make stroke thinner as we zoom in
-              onClick={() => countryElephantData && onCountryClick(countryElephantData)}
+              fill="transparent"
+              className="country-group"
+              onClick={() => clickData && onCountryClick(clickData)}
             />
           );
         })}
