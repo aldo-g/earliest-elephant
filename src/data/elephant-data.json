@@ -1,0 +1,13 @@
+[
+  {
+    "countryCode": "CAN",
+    "countryName": "Canada",
+    "elephantName": "Jumbo",
+    "arrivalYear": 1885,
+    "story": [
+      "Jumbo, one of the most famous elephants in history, was sold to P.T. Barnum and toured North America.",
+      "He tragically died in a railway accident in St. Thomas, Ontario, which cemented his legacy in the region."
+    ],
+    "imageUrl": "/src/assets/jumbo.png"
+  }
+]

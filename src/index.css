@@ -1,0 +1,76 @@
+/* Basic reset to make sure we have a clean slate */
+html, body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden; /* No scrollbars ever */
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  background-color: #000; /* Black background for any slivers that might show */
+}
+
+/* The main container acts as the positioning context for its children */
+.app-container, #root {
+  width: 100vw;
+  height: 100vh;
+  position: relative; /* This is crucial */
+}
+
+/* The h1 title is now an overlay */
+h1 {
+  position: absolute;
+  top: 20px;
+  left: 30px;
+  z-index: 10; /* Ensures it's on top of the map */
+  margin: 0;
+  padding: 8px 16px;
+  background-color: rgba(255, 255, 255, 0.8); /* Semi-transparent background for readability */
+  border-radius: 8px;
+  color: #333;
+  font-size: 1.75rem;
+  pointer-events: none; /* Allows clicks to go "through" the title to the map below */
+  backdrop-filter: blur(4px); /* A nice modern blur effect */
+}
+
+/* The map itself is positioned to fill its entire parent container */
+.country {
+  transition: opacity 0.2s ease-in-out;
+}
+
+.country:hover {
+  opacity: 0.7;
+  cursor: pointer;
+}
+
+/* Modal styles remain the same as they are a top-level overlay */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(5px);
+}
+
+.modal-content {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  max-width: 500px;
+  width: 90%;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  position: relative;
+}
+
+.close-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
